@@ -43,10 +43,10 @@
     <ul class="flex flex-wrap mb-4 text-center">
       <li
         v-for="tag of tags"
-        :key="tag.slug"
+        :key="tag.ID"
         class="xs:w-full md:w-1/3 lg:flex-1 px-2 text-center"
       >
-        <NuxtLink :to="`/blog/tag/${tag.slug}`" class="">
+        <NuxtLink :to="`/blog/tag/${tag.ID}`" class="">
           <p
             class="
               font-bold
@@ -90,9 +90,10 @@ export default {
         slug: 'Blogs'
       })
       .fetch()
-    const tags = await $content('tags')
-      .only(['name', 'description', 'img', 'slug'])
-      .sortBy('createdAt', 'asc')
+    const tags = await $content('contentrain')
+      .where({
+        slug: 'Tags'
+      })
       .fetch()
     const authors = await $content('contentrain')
       .where({
