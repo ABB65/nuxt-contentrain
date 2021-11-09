@@ -4,7 +4,7 @@
   >
     <div class="relative lg:w-1/2 xs:w-full xs:h-84 lg:h-full post-left">
       <img
-        :src="article.img"
+        :src="importImage(article.img)"
         :alt="article.alt"
         class="absolute h-full w-full object-cover"
       />
@@ -16,15 +16,31 @@
             {{ formatDate(article.updatedAt) }}
           </p>
           <span class="mr-3">•</span>
-          <p>{{ article.author.name }}</p>
+          <p>{{ article.author }}</p>
         </div>
         <h1 class="text-6xl font-bold">{{ article.title }}</h1>
         <span v-for="(tag, id) in article.tags" :key="id">
-          <NuxtLink :to="`/blog/tag/${tags[tag].slug}`">
+          <NuxtLink :to="`/blog/tag/${tag}`">
             <span
-              class="truncate uppercase tracking-wider font-medium text-ss px-2 py-1 rounded-full mr-2 mb-2 border border-light-border dark:border-dark-border transition-colors duration-300 ease-linear"
+              class="
+                truncate
+                uppercase
+                tracking-wider
+                font-medium
+                text-ss
+                px-2
+                py-1
+                rounded-full
+                mr-2
+                mb-2
+                border border-light-border
+                dark:border-dark-border
+                transition-colors
+                duration-300
+                ease-linear
+              "
             >
-              {{ tags[tag].name }}
+              {{ tagsList.find((x) => x.ID === tag).name }}
             </span>
           </NuxtLink>
         </span>
@@ -46,7 +62,17 @@
       </div>
     </div>
     <div
-      class="relative xs:py-8 xs:px-8 lg:py-32 lg:px-16 lg:w-1/2 xs:w-full h-full overflow-y-scroll markdown-body post-right custom-scroll"
+      class="
+        relative
+        xs:py-8 xs:px-8
+        lg:py-32 lg:px-16 lg:w-1/2
+        xs:w-full
+        h-full
+        overflow-y-scroll
+        markdown-body
+        post-right
+        custom-scroll
+      "
     >
       <h1 class="font-bold text-4xl">{{ article.title }}</h1>
       <p>{{ article.description }}</p>
@@ -74,39 +100,63 @@
         </ul>
       </nav>
       <!-- content from markdown -->
-      <nuxt-content :document="article" />
+      <nuxt-content :document="article.content" />
       <!-- content author component -->
-      <author :author="article.author" />
+      <!-- <author :author="article.author" /> -->
       <!-- prevNext component -->
-      <PrevNext :prev="prev" :next="next" class="mt-8" />
+      <!-- <PrevNext :prev="prev" :next="next" class="mt-8" /> -->
     </div>
   </article>
 </template>
 <script>
+import Markdown from '@nuxt/content/parsers/markdown'
+import { getDefaults, processMarkdownOptions } from '@nuxt/content/lib/utils'
 export default {
   async asyncData({ $content, params }) {
-    const article = await $content('articles', params.slug).fetch()
-    const tagsList = await $content('tags')
-      .only(['name', 'slug'])
-      .where({ name: { $containsAny: article.tags } })
+    async function parseMarkdown(md) {
+      console.log(md)
+      const options = getDefaults()
+      processMarkdownOptions(options)
+      return await new Markdown(options.markdown).toJSON(md) // toJSON() is async
+    }
+    let article = await $content('contentrain')
+      .where({
+        slug: 'Blogs'
+      })
+      .where({
+        ID: params.slug
+      })
+      .fetch()
+    console.log(article)
+    article = article[0]
+    article.content = await parseMarkdown(article.content)
+    const tagsList = await $content('contentrain')
+      .where({
+        slug: 'Tags'
+      })
+      .where({ ID: { $containsAny: article.tags } })
       .fetch()
     const tags = Object.assign({}, ...tagsList.map((s) => ({ [s.name]: s })))
-    const [prev, next] = await $content('articles')
-      .only(['title', 'slug'])
-      .sortBy('createdAt', 'asc')
-      .surround(params.slug)
-      .fetch()
+    // const [prev, next] = await $content('articles')
+    //   .only(['title', 'slug'])
+    //   .sortBy('createdAt', 'asc')
+    //   .surround(params.slug)
+    //   .fetch()
     return {
       article,
       tags,
-      prev,
-      next
+      tagsList
+      // prev,
+      // next
     }
   },
   methods: {
     formatDate(date) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' }
       return new Date(date).toLocaleDateString('en', options)
+    },
+    importImage(img) {
+      return require('../../' + img)
     }
   }
 }
