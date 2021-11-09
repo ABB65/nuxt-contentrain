@@ -112,13 +112,14 @@
 <script>
 import Markdown from '@nuxt/content/parsers/markdown'
 import { getDefaults, processMarkdownOptions } from '@nuxt/content/lib/utils'
-function parseMarkdown(md) {
-  const options = getDefaults()
-  processMarkdownOptions(options)
-  return new Markdown(options.markdown).toJSON(md) // toJSON() is async
-}
+
 export default {
   async asyncData({ $content, params }) {
+    function parseMarkdown(md) {
+      const options = getDefaults()
+      processMarkdownOptions(options)
+      return new Markdown(options.markdown).toJSON(md) // toJSON() is async
+    }
     let article = await $content('contentrain')
       .where({
         slug: 'Blogs'
