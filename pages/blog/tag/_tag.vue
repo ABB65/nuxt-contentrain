@@ -4,7 +4,7 @@
   >
     <div class="relative lg:w-1/2 xs:w-full xs:h-84 lg:h-full post-left">
       <img
-        :src="tag.img"
+        :src="importImage(tag.img)"
         :alt="tag.name"
         class="absolute h-full w-full object-cover"
       />
@@ -25,7 +25,17 @@
       </div>
     </div>
     <div
-      class="relative xs:py-8 xs:px-8 lg:py-32 lg:px-16 lg:w-1/2 xs:w-full h-full overflow-y-scroll markdown-body post-right custom-scroll"
+      class="
+        relative
+        xs:py-8 xs:px-8
+        lg:py-32 lg:px-16 lg:w-1/2
+        xs:w-full
+        h-full
+        overflow-y-scroll
+        markdown-body
+        post-right
+        custom-scroll
+      "
     >
       <NuxtLink to="/"
         ><p class="hover:underline">Back to All Articles</p></NuxtLink
@@ -34,22 +44,36 @@
       <ul>
         <li
           v-for="article in articles"
-          :key="article.slug"
+          :key="article.ID"
           class="w-full px-2 xs:mb-6 md:mb-12 article-card"
         >
           <NuxtLink
-            :to="{ name: 'blog-slug', params: { slug: article.slug } }"
-            class="flex transition-shadow duration-150 ease-in-out shadow-sm hover:shadow-md xxlmax:flex-col"
+            :to="{ name: 'blog-slug', params: { slug: article.ID } }"
+            class="
+              flex
+              transition-shadow
+              duration-150
+              ease-in-out
+              shadow-sm
+              hover:shadow-md
+              xxlmax:flex-col
+            "
           >
             <img
               v-if="article.img"
               class="h-48 xxlmin:w-1/2 xxlmax:w-full object-cover"
-              :src="article.img"
+              :src="importImage(article.img)"
               :alt="article.alt"
             />
 
             <div
-              class="p-6 flex flex-col justify-between xxlmin:w-1/2 xxlmax:w-full"
+              class="
+                p-6
+                flex flex-col
+                justify-between
+                xxlmin:w-1/2
+                xxlmax:w-full
+              "
             >
               <h2 class="font-bold">{{ article.title }}</h2>
               <p>{{ article.description }}</p>
@@ -67,14 +91,17 @@
 <script>
 export default {
   async asyncData({ $content, params }) {
-    const tags = await $content('tags')
-      .where({ slug: { $contains: params.tag } })
+    const tags = await $content('contentrain')
+      .where({
+        slug: 'Tags'
+      })
+      .where({ ID: params.tag })
       .limit(1)
       .fetch()
     const tag = tags.length > 0 ? tags[0] : {}
-    const articles = await $content('articles')
-      .where({ tags: { $contains: tag.name } })
-      .sortBy('createdAt', 'asc')
+    const articles = await $content('contentrain')
+      .where({ slug: 'Blogs' })
+      .where({ tags: { $contains: tag.ID } })
       .fetch()
     return {
       articles,
@@ -85,6 +112,9 @@ export default {
     formatDate(date) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' }
       return new Date(date).toLocaleDateString('en', options)
+    },
+    importImage(img) {
+      return require('../../../' + img)
     }
   }
 }

@@ -65,6 +65,15 @@ export default {
     },
     nestedProperties: ['author.name']
   },
+  // hooks: {
+  //   'content:file:beforeInsert': async (document, database) => {
+  //     if (document.extension === '.json' && document.body) {
+  //       const data = await database.markdown.toJSON(document.body)
+  //       console.log(data)
+  //       Object.assign(document, data)
+  //     }
+  //   }
+  // },
   /*
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/
