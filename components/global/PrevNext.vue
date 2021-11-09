@@ -1,8 +1,9 @@
 <template>
   <div class="flex justify-between">
+    {{ prev }} {{ next }}
     <NuxtLink
       v-if="prev"
-      :to="{ name: 'blog-slug', params: { slug: prev.slug } }"
+      :to="{ name: 'blog-slug', params: { slug: prev.ID } }"
       class="text-primary font-bold hover:underline"
     >
       {{ prev.title }}
@@ -10,7 +11,7 @@
     <span v-else>&nbsp;</span>
     <NuxtLink
       v-if="next"
-      :to="{ name: 'blog-slug', params: { slug: next.slug } }"
+      :to="{ name: 'blog-slug', params: { slug: next.ID } }"
       class="font-bold hover:underline"
     >
       {{ next.title }}

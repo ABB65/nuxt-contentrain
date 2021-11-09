@@ -16,7 +16,7 @@
             {{ formatDate(article.updatedAt) }}
           </p>
           <span class="mr-3">•</span>
-          <p>{{ article.author }}</p>
+          <p>{{ authors.find((x) => x.ID === article.author).name }}</p>
         </div>
         <h1 class="text-6xl font-bold">{{ article.title }}</h1>
         <span v-for="(tag, id) in article.tags" :key="id">
@@ -102,8 +102,9 @@
       <!-- content from markdown -->
       <nuxt-content :document="article.content" />
       <!-- content author component -->
-      <!-- <author :author="article.author" /> -->
+      <author :author="authors.find((x) => x.ID === article.author)" />
       <!-- prevNext component -->
+      {{ (prev, next) }}
       <!-- <PrevNext :prev="prev" :next="next" class="mt-8" /> -->
     </div>
   </article>
@@ -114,7 +115,6 @@ import { getDefaults, processMarkdownOptions } from '@nuxt/content/lib/utils'
 export default {
   async asyncData({ $content, params }) {
     async function parseMarkdown(md) {
-      console.log(md)
       const options = getDefaults()
       processMarkdownOptions(options)
       return await new Markdown(options.markdown).toJSON(md) // toJSON() is async
@@ -127,7 +127,6 @@ export default {
         ID: params.slug
       })
       .fetch()
-    console.log(article)
     article = article[0]
     article.content = await parseMarkdown(article.content)
     const tagsList = await $content('contentrain')
@@ -137,17 +136,25 @@ export default {
       .where({ ID: { $containsAny: article.tags } })
       .fetch()
     const tags = Object.assign({}, ...tagsList.map((s) => ({ [s.name]: s })))
-    // const [prev, next] = await $content('articles')
-    //   .only(['title', 'slug'])
-    //   .sortBy('createdAt', 'asc')
+    // const [prev, next] = await $content('contentrain')
+    //   .where({
+    //     slug: 'Blogs'
+    //   })
+    //   .only(['title', 'ID'])
     //   .surround(params.slug)
     //   .fetch()
+    const authors = await $content('contentrain')
+      .where({
+        slug: 'Authors'
+      })
+      .fetch()
     return {
       article,
       tags,
-      tagsList
+      tagsList,
       // prev,
-      // next
+      // next,
+      authors
     }
   },
   methods: {
