@@ -104,7 +104,7 @@
       <!-- content author component -->
       <author :author="authors.find((x) => x.ID === article.author)" />
       <!-- prevNext component -->
-      {{ (prev, next) }}
+      <!-- {{ (prev, next) }} -->
       <!-- <PrevNext :prev="prev" :next="next" class="mt-8" /> -->
     </div>
   </article>
@@ -112,13 +112,13 @@
 <script>
 import Markdown from '@nuxt/content/parsers/markdown'
 import { getDefaults, processMarkdownOptions } from '@nuxt/content/lib/utils'
+function parseMarkdown(md) {
+  const options = getDefaults()
+  processMarkdownOptions(options)
+  return new Markdown(options.markdown).toJSON(md) // toJSON() is async
+}
 export default {
   async asyncData({ $content, params }) {
-    async function parseMarkdown(md) {
-      const options = getDefaults()
-      processMarkdownOptions(options)
-      return await new Markdown(options.markdown).toJSON(md) // toJSON() is async
-    }
     let article = await $content('contentrain')
       .where({
         slug: 'Blogs'
