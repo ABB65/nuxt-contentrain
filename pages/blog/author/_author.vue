@@ -106,7 +106,7 @@ export default {
         slug: 'Authors'
       })
       .where({
-        ID: params.slug
+        ID: params.author
       })
       .sortBy('createdAt', 'asc')
       .fetch()
